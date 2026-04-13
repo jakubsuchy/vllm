@@ -1,4 +1,4 @@
-# Using a Load Balance
+# Using a Load Balancer
 
 This document shows how to launch multiple vLLM serving containers and use a load balancer between the servers. Examples of using Nginx and HAProxy are included.
 
@@ -175,18 +175,15 @@ Build the container:
 docker build . -f Dockerfile.haproxy --tag haproxy-lb
 ```
 
-### Launch Nginx
+### Launch HAProxy
 
 ```bash
 docker run \
     -itd \
     -p 8000:80 \
     --network vllm_lb \
-    -v ./nginx_conf/:/etc/nginx/conf.d/ \
-    --name nginx-lb nginx-lb:latest
+    --name haproxy-lb haproxy-lb:latest
 ```
-
-
 
 ## Verify That vLLM Servers Are Ready
 
