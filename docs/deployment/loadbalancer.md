@@ -144,6 +144,10 @@ Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many s
 
     frontend vllm
       bind *:80
+      timeout client 30s
+      timeout server 30s
+      timeout connect 30s
+      mode http
       default_backend vllm_backend
 
     backend vllm_backend
