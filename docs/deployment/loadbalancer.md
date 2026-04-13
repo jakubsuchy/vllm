@@ -147,8 +147,8 @@ Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many s
       default_backend vllm_backend
 
     backend vllm_backend
-      server vllm0 vllm0:80
-      server vllm1 vllm1:80
+      server vllm0 vllm0:80 check
+      server vllm1 vllm1:80 check
       http-request set-header x-real-ip src
       http-request set-header x-forwarded-proto %[ssl_fc,iif(https,http)]
       option forwarded
