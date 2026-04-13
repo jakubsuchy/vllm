@@ -65,65 +65,6 @@ Notes:
 !!! note
     If you are behind proxy, you can pass the proxy settings to the docker run command via `-e http_proxy=$http_proxy -e https_proxy=$https_proxy`.
 
-## Use Nginx
-
-### Build Nginx Container
-
-This guide assumes that you have just cloned the vLLM project and you're currently in the vllm root directory.
-
-```bash
-export vllm_root=`pwd`
-```
-
-Create a file named `Dockerfile.nginx`:
-
-```dockerfile
-FROM nginx:latest
-RUN rm /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-Build the container:
-
-```bash
-docker build . -f Dockerfile.nginx --tag nginx-lb
-```
-
-### Create Simple Nginx Config file
-
-Create a file named `nginx_conf/nginx.conf`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN:8000 max_fails=3 fail_timeout=10000s;` entry to `upstream backend`.
-
-??? console "Config"
-
-    ```console
-    upstream backend {
-        least_conn;
-        server vllm0:8000 max_fails=3 fail_timeout=10000s;
-        server vllm1:8000 max_fails=3 fail_timeout=10000s;
-    }
-    server {
-        listen 80;
-        location / {
-            proxy_pass http://backend;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
-    ```
-### Launch Nginx
-
-```bash
-docker run \
-    -itd \
-    -p 8000:80 \
-    --network vllm_lb \
-    -v ./nginx_conf/:/etc/nginx/conf.d/ \
-    --name nginx-lb nginx-lb:latest
-```
-
 ## Use HAProxy
 
 ### Create Simple HAProxy Config file
@@ -189,6 +130,66 @@ docker run \
     --network vllm_lb \
     --name haproxy-lb haproxy-lb:latest
 ```
+
+## Use Nginx
+
+### Build Nginx Container
+
+This guide assumes that you have just cloned the vLLM project and you're currently in the vllm root directory.
+
+```bash
+export vllm_root=`pwd`
+```
+
+Create a file named `Dockerfile.nginx`:
+
+```dockerfile
+FROM nginx:latest
+RUN rm /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+Build the container:
+
+```bash
+docker build . -f Dockerfile.nginx --tag nginx-lb
+```
+
+### Create Simple Nginx Config file
+
+Create a file named `nginx_conf/nginx.conf`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN:8000 max_fails=3 fail_timeout=10000s;` entry to `upstream backend`.
+
+??? console "Config"
+
+    ```console
+    upstream backend {
+        least_conn;
+        server vllm0:8000 max_fails=3 fail_timeout=10000s;
+        server vllm1:8000 max_fails=3 fail_timeout=10000s;
+    }
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+### Launch Nginx
+
+```bash
+docker run \
+    -itd \
+    -p 8000:80 \
+    --network vllm_lb \
+    -v ./nginx_conf/:/etc/nginx/conf.d/ \
+    --name nginx-lb nginx-lb:latest
+```
+
 
 ## Verify That vLLM Servers Are Ready
 
