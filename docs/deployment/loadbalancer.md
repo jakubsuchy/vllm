@@ -128,7 +128,7 @@ docker run \
 
 ### Create Simple HAProxy Config file
 
-Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN:8000 max_fails=3 fail_timeout=10000s;` entry to `upstream backend`.
+Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN vllmN:8000 check` entry to `backend vllm_backend`.
 
 ??? console "Config"
 
@@ -147,8 +147,9 @@ Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many s
       default_backend vllm_backend
 
     backend vllm_backend
-      server vllm0 vllm0:80 check
-      server vllm1 vllm1:80 check
+      balance leastconn
+      server vllm0 vllm0:8000 check
+      server vllm1 vllm1:8000 check
       http-request set-header x-real-ip src
       http-request set-header x-forwarded-proto %[ssl_fc,iif(https,http)]
       option forwarded
