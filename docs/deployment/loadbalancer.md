@@ -69,7 +69,7 @@ Notes:
 
 ### Create Simple HAProxy Config file
 
-Create a file named `haproxy_conf/haproxy.conf`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN vllmN:8000 check` entry to `backend vllm_backend`.
+Create a file named `haproxy_conf/haproxy.cfg`. Note that you can add as many servers as you'd like. In the below example we'll start with two. To add more, add another `server vllmN vllmN:8000 check` entry to `backend vllm_backend`.
 
 ??? console "Config"
 
